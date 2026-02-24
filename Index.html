@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Geburtstagsmanager</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="animations.css">
+  <style>
+    /* Safe Area for Bottom Nav */
+    body {
+      padding-bottom: 6rem;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .nav-item.active {
+      color: #818cf8;
+    }
+
+    .nav-item.active .nav-icon {
+      background: rgba(129, 140, 248, 0.15);
+    }
+
+    /* Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #818cf8;
+      cursor: pointer;
+      margin-top: -6px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-200">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 px-6 py-4 flex justify-between items-center glass-nav">
+    <div>
+      <h1 class="text-xl font-extrabold tracking-tight text-white">Happy <span class="text-gradient">Birthday</span>
+      </h1>
+      <p id="header-subtitle" class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Dashboard</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btn-theme-toggle" onclick="toggleTheme()" aria-label="Theme wechseln"
+        class="w-10 h-10 bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 transition-all rounded-full flex items-center justify-center text-amber-400">
+        <i data-lucide="sun" class="w-5 h-5"></i>
+      </button>
+      <button id="btn-new-contact" onclick="openAddContactModal()" aria-label="Neuen Kontakt hinzufügen"
+        class="w-10 h-10 bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-95 transition-all rounded-full flex items-center justify-center text-indigo-400">
+        <i data-lucide="plus" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="px-4 mt-6 max-w-xl mx-auto space-y-8 animate-fade-in relative z-0">
+
+    <!-- VIEW 1: LANDING / DASHBOARD -->
+    <div id="view-landing" class="view-section active space-y-6">
+      <section class="px-2 flex justify-between items-end">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-1">Hallo! 👋</h2>
+          <p class="text-slate-400 text-sm">Nächster Halt: <span id="dashboard-next-name"
+              class="text-indigo-400 font-bold">--</span></p>
+        </div>
+        <div class="glass-pill px-3 py-1.5 flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span id="dashboard-count-month" class="text-xs font-bold text-white">0</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Diesen Monat</span>
+        </div>
+      </section>
+
+      <!-- Calendar (Moved from Stats) -->
+      <section class="glass-card p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white uppercase tracking-wider">Geburtstags-Kalender</h2>
+          <div class="flex items-center gap-2">
+            <button id="btn-prev-month" class="p-1 hover:text-white text-slate-400 transition-colors"><i
+                data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <span id="current-month-label" class="text-xs font-black min-w-[80px] text-center">--</span>
+            <button id="btn-next-month" class="p-1 hover:text-white text-slate-400 transition-colors"><i
+                data-lucide="chevron-right" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center mb-2">
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Mo</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Di</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Mi</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Do</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Fr</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">Sa</span>
+          <span class="text-[9px] text-slate-500 font-bold uppercase">So</span>
+        </div>
+
+        <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+          <!-- Dates injected by JS -->
+        </div>
+      </section>
+
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Anstehend</h3>
+        <div id="landing-list" class="space-y-3 pb-20">
+          <!-- Min cards injected JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- VIEW 2: CONTACTS -->
+    <div id="view-contacts" class="view-section space-y-6">
+      <section class="px-2">
+        <h2 class="text-2xl font-bold text-white mb-1">Meine Kontakte</h2>
+        <p class="text-slate-400 text-sm">Alle Geburtstage in der Übersicht.</p>
+      </section>
+
+      <!-- Filter Toggle -->
+      <div class="flex p-1 bg-slate-800/50 rounded-xl border border-white/5 mb-4 relative">
+        <div id="filter-pill"
+          class="absolute inset-1 w-[calc(50%-4px)] bg-indigo-500 rounded-lg transition-all duration-300 left-1"></div>
+        <button onclick="setFilterMode('all')"
+          class="flex-1 relative z-10 py-2 text-xs font-bold text-white text-center transition-colors">Alle</button>
+        <button onclick="setFilterMode('elements')"
+          class="flex-1 relative z-10 py-2 text-xs font-bold text-slate-400 text-center transition-colors">Elemente</button>
+      </div>
+
+      <!-- Search (Visual only for now) -->
+      <div class="relative">
+        <input type="text" id="contact-search" placeholder="Suchen..."
+          class="w-full bg-slate-800/50 border border-white/10 rounded-xl px-10 py-3 text-sm text-white focus:border-indigo-500 focus:bg-slate-800 transition-all outline-none">
+        <i data-lucide="search" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500"></i>
+      </div>
+
+      <!-- Zodiac Filter -->
+      <div id="zodiac-filter-container" class="space-y-2 pb-4 hidden">
+        <!-- Rows injected by JS -->
+      </div>
+
+      <div id="contacts-list" class="space-y-3 pb-20">
+        <!-- Full list injected JS -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: ANALYTICS -->
+    <div id="view-analytics" class="view-section space-y-6">
+      <section class="px-2">
+        <h2 class="text-2xl font-bold text-white mb-1">Auswertung</h2>
+        <p class="text-slate-400 text-sm">Statistiken und Trends der Sterne.</p>
+      </section>
+
+      <!-- Fun Facts Stats -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Fun Facts</h3>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Punctuality -->
+          <div class="glass-card p-4 space-y-2 text-center">
+            <div class="w-10 h-10 mx-auto bg-amber-500/10 rounded-full flex items-center justify-center text-amber-400">
+              <i data-lucide="clock" class="w-5 h-5"></i>
+            </div>
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Ø Pünktlichkeit</h4>
+            <p id="stat-avg-punctuality" class="text-xl font-black text-white">--</p>
+          </div>
+
+          <!-- Top Caffeine -->
+          <div class="glass-card p-4 space-y-2 text-center">
+            <div class="w-10 h-10 mx-auto bg-rose-500/10 rounded-full flex items-center justify-center text-rose-400">
+              <i data-lucide="coffee" class="w-5 h-5"></i>
+            </div>
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Top Energie</h4>
+            <p id="stat-common-caffeine" class="text-xl font-black text-white">--</p>
+          </div>
+
+          <!-- Social Battery -->
+          <div class="glass-card p-4 space-y-2 text-center">
+            <div
+              class="w-10 h-10 mx-auto bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-400">
+              <i data-lucide="zap" class="w-5 h-5"></i>
+            </div>
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Ø Social Battery</h4>
+            <p id="stat-avg-battery" class="text-xl font-black text-white">--</p>
+          </div>
+
+          <!-- Popular Snack -->
+          <div class="glass-card p-4 space-y-2 text-center">
+            <div
+              class="w-10 h-10 mx-auto bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-400">
+              <i data-lucide="cookie" class="w-5 h-5"></i>
+            </div>
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Top Snack</h4>
+            <p id="stat-top-snack" class="text-xl font-black text-white text-xs truncate">--</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Age Stats -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Der Zeitgeist ⏳</h3>
+        <div class="grid grid-cols-3 gap-3">
+          <!-- Min Age -->
+          <div class="glass-card p-3 space-y-2 text-center">
+            <h4 class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Küken-Status</h4>
+            <p id="stat-min-age" class="text-lg font-black text-emerald-400">--</p>
+            <p class="text-[7px] text-slate-500 uppercase font-bold">Jüngster</p>
+          </div>
+
+          <!-- Avg Age -->
+          <div class="glass-card p-3 space-y-2 text-center border-indigo-500/30">
+            <h4 class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Vintage-Level</h4>
+            <p id="stat-avg-age" class="text-lg font-black text-white">--</p>
+            <p class="text-[7px] text-slate-500 uppercase font-bold">Ø Alter</p>
+          </div>
+
+          <!-- Max Age -->
+          <div class="glass-card p-3 space-y-2 text-center">
+            <h4 class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Weisheits-Gigant</h4>
+            <p id="stat-max-age" class="text-lg font-black text-amber-400">--</p>
+            <p class="text-[7px] text-slate-500 uppercase font-bold">Ältester</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Element Radar -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Element-Radar 🔮</h3>
+        <div class="glass-card p-6 space-y-6">
+          <div id="element-radar-container" class="space-y-4">
+            <!-- Bars injected by JS -->
+          </div>
+          <div class="pt-4 border-t border-white/5 text-center">
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Fazit der Sterne</p>
+            <p id="element-verdict" class="text-sm text-indigo-300 italic font-medium">--</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Party Type Distribution -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Party-Dynamik 🕺</h3>
+        <div class="glass-card p-6 space-y-4">
+          <div id="party-type-container" class="space-y-3">
+            <!-- Bars injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Eskalations-Orakel -->
+      <section class="space-y-4 pb-24">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Eskalations-Orakel 🔥</h3>
+        <div class="glass-card p-6 relative overflow-hidden">
+          <div class="relative z-10 flex flex-col items-center gap-2">
+            <div id="oracle-meter" class="text-4xl font-black text-gradient">--%</div>
+            <p id="oracle-status" class="text-sm font-bold text-white text-center">Berechne kosmische Schwingungen...
+            </p>
+            <p id="oracle-desc" class="text-[10px] text-slate-400 text-center px-4 mt-1">Die Gefahr einer spontanen
+              Polonaise liegt bei...</p>
+          </div>
+          <!-- Background Glow Effect via JS -->
+          <div id="oracle-glow" class="absolute inset-0 opacity-20 pointer-events-none transition-all duration-1000">
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- VIEW 4: SETUP -->
+    <div id="view-setup" class="view-section space-y-6">
+      <section class="px-2">
+        <h2 class="text-2xl font-bold text-white mb-1">Setup</h2>
+        <p class="text-slate-400 text-sm">App-Konfiguration und Datensicherung.</p>
+      </section>
+
+      <!-- Appearance -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Anzeige 🎭</h3>
+        <div class="glass-card p-6 flex items-center justify-between">
+          <div>
+            <h4 class="text-sm font-bold text-white">Erscheinungsbild</h4>
+            <p class="text-[10px] text-slate-500 uppercase font-bold">Hell / Dunkel Modus</p>
+          </div>
+          <button onclick="toggleTheme()" class="p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+            <i id="theme-icon" data-lucide="moon" class="w-5 h-5 text-indigo-400"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Data Backup & Management -->
+      <section class="space-y-4 pb-24">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Daten-Management 💾</h3>
+        <div class="glass-card p-6 space-y-4">
+          <p class="text-[10px] text-slate-500 leading-relaxed uppercase tracking-wider font-bold">Sicherung & Backup
+          </p>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="exportBackup()"
+              class="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95">
+              <i data-lucide="download" class="w-4 h-4"></i> Export (JSON)
+            </button>
+            <button onclick="triggerImport()"
+              class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95">
+              <i data-lucide="upload" class="w-4 h-4"></i> Import (JSON)
+            </button>
+          </div>
+          <button onclick="document.getElementById('import-ical-file').click()"
+            class="w-full bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/20 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-95 mt-2">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i> iCal Import (.ics)
+          </button>
+          <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackup(event)">
+          <input type="file" id="import-ical-file" style="display:none" accept=".ics" onchange="importICal(event)">
+          <p class="text-[9px] text-slate-500 italic text-center">Deine Daten liegen in der lokalen IndexedDB.</p>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav
+    class="fixed bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 flex justify-around items-center py-3 px-2">
+    <button onclick="switchView('landing')" data-target="landing"
+      class="nav-item flex flex-col items-center gap-1 active">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <span class="text-[8px] uppercase font-bold tracking-widest">Dashboard</span>
+    </button>
+    <button onclick="switchView('contacts')" data-target="contacts" class="nav-item flex flex-col items-center gap-1">
+      <i data-lucide="users" class="w-5 h-5"></i>
+      <span class="text-[8px] uppercase font-bold tracking-widest">Kontakte</span>
+    </button>
+    <button onclick="switchView('analytics')" data-target="analytics" class="nav-item flex flex-col items-center gap-1">
+      <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+      <span class="text-[8px] uppercase font-bold tracking-widest">Analysen</span>
+    </button>
+    <button onclick="switchView('setup')" data-target="setup" class="nav-item flex flex-col items-center gap-1">
+      <i data-lucide="settings" class="w-5 h-5"></i>
+      <span class="text-[8px] uppercase font-bold tracking-widest">Setup</span>
+    </button>
+  </nav>
+
+  <!-- Add Contact Modal (Overlay) -->
+  <div id="modal-add" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
+    <div
+      class="glass-card w-full max-w-lg p-0 relative z-10 animate-fade-in rounded-t-2xl sm:rounded-2xl border-b-0 sm:border-b border-white/10 bg-[#0f172a] max-h-[90vh] flex flex-col">
+
+      <div class="flex justify-between items-center p-6 border-b border-white/5">
+        <h3 id="modal-add-title" class="text-lg font-bold text-white">Neuer Kontakt</h3>
+        <button onclick="closeAddModal()" class="p-2 bg-white/5 rounded-full text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="form-add-contact" class="p-6 space-y-4 overflow-y-auto no-scrollbar">
+        <input type="hidden" id="input-id">
+        <!-- Basic -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Name</label>
+            <input type="text" id="input-name" placeholder="Name" required
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500 transition-all">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Geburtstag</label>
+            <input type="date" id="input-date" required
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500 transition-all">
+          </div>
+        </div>
+
+        <!-- Fun Fields -->
+        <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest border-b border-indigo-500/20 pb-1 mt-6">
+          Fun Facts</h4>
+
+        <div>
+          <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Koffein-Level</label>
+          <select id="input-caffeine"
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500">
+            <option value="Low">Tee-Trinker (Low)</option>
+            <option value="Medium" selected>Normaler Mensch (Medium)</option>
+            <option value="High">Wachsam (High)</option>
+            <option value="Extreme">Zitternd (Extrem)</option>
+            <option value="Death">Lebenselixir (Kritisch)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Hass-Objekt</label>
+          <input type="text" id="input-hate" placeholder="z.B. Regenwetter, Montage..."
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500 transition-all">
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Insider-Story</label>
+          <textarea id="input-insider" placeholder="Kurze, witzige Anekdote..."
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500 transition-all h-20 resize-none"></textarea>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1">
+            <label class="block text-[10px] text-slate-500 uppercase tracking-widest font-bold">Pünktlichkeit</label>
+            <span id="slider-val-punctuality" class="text-xs font-bold text-white">0 Min</span>
+          </div>
+          <input type="range" id="input-punctuality" min="-60" max="60" value="0" step="5"
+            oninput="document.getElementById('slider-val-punctuality').textContent = this.value + ' Min'"
+            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[9px] text-slate-500 mt-1">
+            <span>Zu früh</span>
+            <span>Zu spät</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Social
+              Battery</label>
+            <div class="flex items-center gap-2">
+              <input type="range" id="input-social-battery" min="0" max="100" value="50" step="10"
+                oninput="document.getElementById('val-social-battery').textContent = this.value + '%'"
+                class="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+              <span id="val-social-battery" class="text-xs font-bold text-white min-w-[35px]">50%</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Party-Typ</label>
+            <select id="input-party-type"
+              class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2 py-2 text-white text-xs outline-none focus:border-indigo-500">
+              <option value="Buffet-Wächter">Buffet-Wächter 🍕</option>
+              <option value="Tanzbär">Tanzbär 🕺</option>
+              <option value="DJ-Berater">DJ-Berater 🎧</option>
+              <option value="Barkeeper-Bestie">Barkeeper-Bestie 🍸</option>
+              <option value="Ecken-Hocker">Ecken-Hocker 🛋️</option>
+              <option value="Eskalations-Profi">Eskalations-Profi 🔥</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label
+            class="block text-[10px] text-slate-500 uppercase tracking-widest mb-1 font-bold">Lieblings-Snack</label>
+          <input type="text" id="input-snack" placeholder="z.B. Nachos, Gummibärchen..."
+            class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-white text-sm outline-none focus:border-indigo-500 transition-all">
+        </div>
+
+        <button type="submit"
+          class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Speichern</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile Detail Modal -->
+  <div id="modal-profile" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity" onclick="closeProfileModal()">
+    </div>
+    <div class="glass-card w-full max-w-sm p-0 relative z-10 animate-fade-in overflow-hidden">
+
+      <!-- Banner / Header -->
+      <div class="h-24 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 relative">
+        <button onclick="closeProfileModal()"
+          class="absolute top-4 right-4 p-2 bg-black/20 rounded-full text-white/50 hover:text-white backdrop-blur-sm"><i
+            data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="px-6 pb-6 -mt-10 relative">
+        <!-- Avatar -->
+        <div
+          class="w-20 h-20 rounded-full bg-slate-800 border-4 border-[#1e293b] flex items-center justify-center shadow-xl mb-4">
+          <span id="profile-initials" class="text-3xl font-black text-white">--</span>
+        </div>
+
+        <h3 id="profile-name" class="text-xl font-bold text-white leading-none mb-1">--</h3>
+        <p id="profile-age-info" class="text-sm text-indigo-400 font-medium mb-6">--</p>
+
+        <!-- Fun Stats Grid -->
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="coffee" class="w-3 h-3 text-rose-400"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Koffein</span>
+              </div>
+              <p id="profile-caffeine" class="text-sm font-bold text-white">--</p>
+            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Zeit</span>
+              </div>
+              <p id="profile-punctuality" class="text-sm font-bold text-white">--</p>
+            </div>
+          </div>
+
+          <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase mb-1">Insider Story</h4>
+            <p id="profile-insider" class="text-xs text-slate-300 italic">--</p>
+          </div>
+
+          <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+            <h4 class="text-[9px] font-bold text-slate-500 uppercase">Hass-Objekt</h4>
+            <span id="profile-hate" class="text-xs font-bold text-white">--</span>
+          </div>
+
+          <!-- Zodiac & Battery -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="sparkles" class="w-3 h-3 text-violet-400"></i>
+                <span id="profile-zodiac-name" class="text-[9px] font-bold text-slate-400 uppercase">Zodiac</span>
+              </div>
+              <p id="profile-zodiac-fact" class="text-[10px] text-slate-300 italic leading-tight">--</p>
+            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="zap" class="w-3 h-3 text-yellow-400"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Battery</span>
+              </div>
+              <div class="w-full bg-white/10 h-1.5 rounded-full mt-2">
+                <div id="profile-battery-bar" class="bg-yellow-400 h-full rounded-full transition-all duration-500"
+                  style="width: 0%"></div>
+              </div>
+              <p id="profile-social-battery" class="text-[10px] font-bold text-white mt-1">--</p>
+            </div>
+          </div>
+
+          <!-- Snack & Party Style -->
+          <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+            <div>
+              <h4 class="text-[9px] font-bold text-slate-500 uppercase mb-1">Party-Rolle</h4>
+              <p id="profile-party-type" class="text-xs font-bold text-white uppercase tracking-wide">--</p>
+            </div>
+            <div class="text-right">
+              <h4 class="text-[9px] font-bold text-slate-500 uppercase mb-1">Waffe der Wahl</h4>
+              <p id="profile-snack" class="text-xs font-bold text-indigo-400">--</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-4 flex gap-3">
+            <button id="btn-edit-contact"
+              class="flex-1 py-3 bg-white/5 text-white font-bold rounded-xl text-xs hover:bg-white/10">Bearbeiten</button>
+            <button id="btn-delete-contact"
+              class="flex-1 py-3 border border-red-500/30 text-red-500 font-bold rounded-xl text-xs hover:bg-red-500/10">Löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
